@@ -2,6 +2,7 @@ from parse import read_input_file, write_output_file
 import math
 import os
 import random
+import dynamic
 import FuncSets
 import FuncSets_BFS
 import Task
@@ -11,7 +12,7 @@ sys.setrecursionlimit(20000)
 
 EVAL_FUNCTIONS = {
     'adv_profit_ratio': lambda curr_time: lambda task: task.get_late_benefit((curr_time+task.get_duration())-task.get_deadline()) / task.get_duration(),
-    'profit_ratio': lambda curr_time: lambda task: task.get_max_benefit() / task.get_duration(),
+    'profit_ratio': lambda task: task.get_max_benefit() / task.get_duration(),
     'deadline': lambda task: task.get_deadline(),
     'deadline_profit': lambda curr_time: lambda task: task.get_late_benefit((curr_time+task.get_duration())-task.get_deadline()) / task.get_deadline(),
     'linear': lambda curr_time: lambda task: task.get_late_benefit((curr_time+task.get_duration())-task.get_deadline()) / task.get_duration() + (task.get_max_benefit() / task.get_deadline()),
@@ -37,7 +38,7 @@ def naive_simulated_annealing(tasks, temp):
         random_choice = selection[random.randint(0, len(selection) - 1)]
 
         # Determine if the time has gone over the deadline
-        overtime = time - choice.get_deadline()
+        overtime = time + choice.get_duration() - choice.get_deadline()
 
         # temp schedule
         t = temp / (time + 1)
@@ -53,20 +54,28 @@ def naive_simulated_annealing(tasks, temp):
         if time + choice.get_duration() > 1440:
             time -= choice.get_duration()
             break
-        # Add expected profit from igloo
-        profit += choice.get_late_benefit(overtime)
-
-        # Remove task from tasks
-        buffer_tasks.remove(choice)
 
         # Add the duration of the task to the time
         time += choice.get_duration()
 
-        # Add the task to the sequence
-        sequence.append(choice.get_task_id())
+        # Remove task from tasks
+        buffer_tasks.remove(choice)
 
+        # Add the task to the sequence
+        sequence.append(choice)
+
+        if overtime > 0:
+            swap(sequence, choice)
+            new_profit = determine_profit(sequence)
+            if profit + choice.get_late_benefit(overtime) < new_profit:
+                profit = new_profit
+        else:
+            # Add expected profit from igloo
+            profit += choice.get_late_benefit(overtime)
+
+    f_sequence = [task.get_task_id() for task in sequence]
     assert time <= 1440, f'Tasks time {time} exceed the limit of 1440'
-    return sequence, profit
+    return f_sequence, profit
 
 
 def bench_mark(tasks, eval):
@@ -162,6 +171,13 @@ if __name__ == '__main__':
     bp2 = 0
     bp3 = 0
     net = 0
+    # task0 = Task.Task(0, 936, 432, 10)
+    # task1 = Task.Task(1, 1440, 576, 20)
+    # task2 = Task.Task(2, 1152, 216, 5)
+    # task3 = Task.Task(3, 432, 288, 30)
+    # task4 = Task.Task(4, 576, 360, 15)
+    # tasks = [task0, task1, task2, task3, task4]
+    # print(dynamic.dp_solver(tasks))
     for test_type in os.listdir('inputs/'):
         if test_type[0] != '.':
             for input_path in os.listdir('inputs/' + test_type):
@@ -173,25 +189,28 @@ if __name__ == '__main__':
                     tasks1 = tasks.copy()
                     tasks2 = tasks.copy()
                     tasks3 = tasks.copy()
+                    out1 = 0, 0
+                    out2 = 0, 0
+                    out3 = 0, 0
+                    out4 = 0, 0
+                    p, s = dynamic.dp_solver(tasks)
+                    net += p
+                    # out1 = bench_mark(tasks1, 'adv_profit_ratio')
+                    # branch_bound = FuncSets_simulated_annealing.branch_and_bound(tasks)
+                    # out2 = branch_bound.return_sequence(), branch_bound.result()
+                    # out3 = naive_simulated_annealing(tasks3, 2000)
 
-                    out1 = bench_mark(tasks1, 'adv_profit_ratio')
-                    output2, profit2 = 0, 0
 
-                    branch_bound = FuncSets_simulated_annealing.branch_and_bound(tasks)
-                    out2 = branch_bound.return_sequence(), branch_bound.result()
-
-                    out3 = naive_simulated_annealing(tasks3, 2000)
-
-                    sequence, profit = max([out1, out2, out3], key=lambda x: x[1])
-                    net += profit
-                    write_output_file(output_path, sequence)
-
-                    bp1 += out1[1]
-                    bp2 += out2[1]
-                    bp3 += out3[1]
+                    # sequence, profit = max([out1, out2, out3], key=lambda x: x[1])
+                    # net += profit
+                    # write_output_file(output_path, sequence)
+                    #
+                    # bp1 += out1[1]
+                    # bp2 += out2[1]
+                    # bp3 += out3[1]
                     count += 1
-
-    print(f'Benchmark1 Avg: {bp1/count}\nSimulated Annealing Avg: {bp2/count}\nNaive Simulated Annealing Avg: {bp2/count}\nNet: {net/count}')
+    print(f'Net: {net/count}')
+    # print(f'Benchmark1 Avg: {bp1/count}\nSimulated Annealing Avg: {bp2/count}\nNaive Simulated Annealing Avg: {bp3/count}\nNet: {net/count}')
 
 # if __name__ == '__main__':
 #     total = 0
