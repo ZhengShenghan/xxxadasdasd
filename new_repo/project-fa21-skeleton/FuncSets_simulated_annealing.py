@@ -95,7 +95,7 @@ class branch_and_bound:
         self.best_profit = profit
         for x in sequence:
             name = name + '-' + str(x)
-        self.tree.create_node(identifier = name, parent = '-1', data = [name, profit, 1, 1440])
+        self.tree.create_node(identifier=name, parent='-1', data=[name, profit, 1, 1440])
         assert time <= 1440, f'Tasks time {time} exceed the limit of 1440'
         return profit
 
@@ -178,7 +178,7 @@ class branch_and_bound:
         #assert time <= time_constraint, f'Tasks time {time} exceed the limit of {time_constraint}'
         #return sequence, profit
 
-    def generate_id(self, list_id :list):
+    def generate_id(self, list_id: list):
         result = ''
         for i in range(len(list_id)):
             result += '-' + str(list_id[i])
