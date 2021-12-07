@@ -249,6 +249,7 @@ class branch_and_bound:
         input_node = self.queue.get()
         if input_node.data[2] == 0:
             self.simulated_annealing(self.tasks, int(1440/3), 0, input_node)
+            self.return_profit(input_node)
         else:
             name = input_node.data[0]
             name_list = name.split('-')[2:]
