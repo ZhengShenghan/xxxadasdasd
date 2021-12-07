@@ -258,7 +258,7 @@ class branch_and_bound:
                 self.return_profit(input_tasks, node.data[3], input_node)
 
     def result(self):
-        self.reurn_profit(self, self.tasks, 0, self.root)
+        self.reurn_profit(self.tasks, 0, self.root)
         return self.best_profit*self.factor
 
     def return_sequence(self):
