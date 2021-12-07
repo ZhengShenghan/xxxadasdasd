@@ -195,6 +195,7 @@ if __name__ == '__main__':
                     out4 = 0, 0
                     p, s = dynamic.dp_solver(tasks)
                     net += p
+                    write_output_file(output_path, s)
                     # out1 = bench_mark(tasks1, 'adv_profit_ratio')
                     # branch_bound = FuncSets_simulated_annealing.branch_and_bound(tasks)
                     # out2 = branch_bound.return_sequence(), branch_bound.result()
