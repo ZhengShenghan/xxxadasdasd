@@ -118,7 +118,7 @@ class branch_and_bound:
                     best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
                 else:
                     top_ten = sorted(input_tasks, key=deadline(time), reverse=True)
-                    add_rand = random.sample(range(1, len(input_tasks)), max(1, int(len(input_tasks)/2)))
+                    add_rand = random.sample(range(1, len(input_tasks)), max(1, int(len(input_tasks)/20)))
                     for x in add_rand:
                         top_ten.append(self.tasks[x])
                     best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
@@ -181,6 +181,7 @@ class branch_and_bound:
         #return sequence, profit
 
     def generate_id(self, list_id :list):
+        result = ''
         for i in range(len(list_id)):
             result += '-' + str(list_id[i])
         return result
@@ -228,7 +229,7 @@ class branch_and_bound:
                 self.tasks[i].modify_profit(self.tasks[i].get_max_benefit()*1.6/factor)
         return
 
-    def reurn_profit(self, available_tasks, current_time, node):
+    def return_profit(self, available_tasks, current_time, node):
         # determine which input should be feeded into simulated anealing
         # feed in available tasks , set start time,
         if node.data[1] > self.best_profit:
@@ -253,7 +254,7 @@ class branch_and_bound:
                 self.return_profit(input_tasks, node.data[3], input_node)
 
     def result(self):
-        self.reurn_profit(self.tasks, 0, self.root)
+        self.return_profit(self.tasks, 0, self.root)
         return self.best_profit*self.factor
 
     def return_sequence(self):
