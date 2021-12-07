@@ -117,8 +117,7 @@ class branch_and_bound:
                 top_ten = sorted(input_tasks, key=deadline(time), reverse=True)[:10]
                 add_rand = random.sample(range(0, len(input_tasks)), max(1, int(len(input_tasks)/20)))
                 for x in add_rand:
-                    if self.tasks[x] not in top_ten:
-                        top_ten.append(input_tasks[x])
+                    top_ten.append(input_tasks[x])
                 best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
 
                 # Random choice out of possible options
@@ -268,16 +267,10 @@ class branch_and_bound:
         return self.best_profit*self.factor
 
     def return_sequence(self):
-        if self.subtree_node == self.root:
-            result = []
-            for i in range(len(self.sorted_list)):
-                result.append(self.sorted_list[i][0])
-            self.best_order = result
-            return result
         all_leaves = self.tree.leaves(self.subtree_node.data[0])
         for i in range(len(all_leaves)):
             node = all_leaves[i]
-            if node.data[2] == self.bound:
+            if node.data[2] == self.best_profit:
                 identifier = node.data[0]
                 str_list = identifier.split('-')[2:]
                 for j in range(len(str_list)):

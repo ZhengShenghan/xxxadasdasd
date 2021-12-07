@@ -18,8 +18,10 @@ if __name__ == '__main__':
                         input_path = 'inputs/' + test_type + '/' + input_path
                         tasks = read_input_file(input_path)
                         branch_and_bound = FuncSets_simulated_annealing.branch_and_bound(tasks)
-                        sum += branch_and_bound.result()
-                        print(branch_and_bound.result())
+                        t = branch_and_bound.result()
+                        sum += t
+                        branch_and_bound.show()
+                        print(t)
                         num += 1
                         print('\n')
     print("---")
