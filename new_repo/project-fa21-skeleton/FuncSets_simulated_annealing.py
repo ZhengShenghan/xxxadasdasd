@@ -109,6 +109,7 @@ class branch_and_bound:
         T_end = 0
         k = 0.95
         while runtime < self.L:
+            slips = 10
             sequence = []
             time = 0
             profit = 0.0
@@ -117,6 +118,7 @@ class branch_and_bound:
                 sort_buffer = sorted(input_tasks, key=deadline(time), reverse=True)
                 selection = sort_buffer[:10]
                 add_rand = random.sample(range(0, len(input_tasks)), max(1, int(len(input_tasks)/20)))
+
                 for idx in add_rand:
                     selection.append(input_tasks[idx])
                 choice = sorted(selection, key=profit_margin(time), reverse=True)[0]
@@ -139,41 +141,55 @@ class branch_and_bound:
                 if diff >= 0 and random.random() < anneal:
                     choice = random_choice
 
-                if start_time + time + choice.get_duration() > time_constraint:
-                    time -= choice.get_duration()
-                    break
-                # Add expected profit from igloo
-
-                profit += choice.get_late_benefit(overtime)
-
-                #self.best_each_level.append(profit)
-
-                # Remove task from tasks
                 input_tasks.remove(choice)
+                if start_time + time + choice.get_duration() > time_constraint:
+                    # time -= choice.get_duration()
+                    if not slips:
+                        break
+                    slips -= 1
+                else:
+                    # Add expected profit from igloo
 
-                # Add the duration of the task to the time
-                time += choice.get_duration()
+                    profit += choice.get_late_benefit(overtime)
 
-                # Add the task to the sequence
-                sequence.append(choice.get_task_id())
+                    #self.best_each_level.append(profit)
+
+                    # Remove task from tasks
+                    # input_tasks.remove(choice)
+
+                    # Add the duration of the task to the time
+                    time += choice.get_duration()
+
+                    # Add the task to the sequence
+                    sequence.append(choice.get_task_id())
 
             if runtime == 0:
                 pre_profit = profit
-                T_ini = 1/profit
-                T_end = 1/(profit + 0.15*profit)
-                new_node = self.tree.create_node(identifier=node.data[0] + self.generate_id(sequence), parent = node.data[0],
+                if profit == 0:
+                    T_ini = 1/(profit + 100)
+                else:
+                    T_ini = 1 / profit
+                T_end = 1/(profit + 0.15*profit + 1)
+                try:
+                    new_node = self.tree.create_node(identifier = node.data[0] + self.generate_id(sequence), parent = node.data[0],
                                       data = [node.data[0] + self.generate_id(sequence), profit, node.data[2] + 1, node.data[3] + time])
-                self.queue.put(new_node)
-                self.num_nodes += 1
-            else:
-                # add another while loop
-                if T_end > 1/profit:
-                    break
-                if self.metroplis_rule(1/profit, 1/pre_profit, k, T_ini) == 1:
-                    new_node = self.tree.create_node(identifier=node.data[0] + self.generate_id(sequence), parent=node.data[0],
-                                          data=[node.data[0] + self.generate_id(sequence), profit, node.data[2] + 1, node.data[3] + time])
                     self.queue.put(new_node)
                     self.num_nodes += 1
+                except:
+                    pass
+            else:
+                # add another while loop
+                if profit != 0:
+                    if T_end > 1/profit:
+                        break
+                if self.metroplis_rule(1/(profit + 0.01), 1/(pre_profit + 0.01), k, T_ini) == 1:
+                    try:
+                        new_node = self.tree.create_node(identifier=node.data[0] + self.generate_id(sequence), parent=node.data[0],
+                                          data=[node.data[0] + self.generate_id(sequence), profit, node.data[2] + 1, node.data[3] + time])
+                        self.queue.put(new_node)
+                        self.num_nodes += 1
+                    except:
+                        pass
             runtime += 1
         #assert time <= time_constraint, f'Tasks time {time} exceed the limit of {time_constraint}'
         #return sequence, profit
@@ -247,27 +263,23 @@ class branch_and_bound:
 
             if input_node.data[2] == 1:
                 self.simulated_annealing(input_tasks, int(1440*2/3), input_node.data[3], input_node)
-                self.return_profit(input_tasks, node.data[3], input_node)
 
+                #self.return_profit(input_tasks, node.data[3], input_node)
+                self.return_profit(input_node)
             if input_node.data[2] == 2:
                 self.simulated_annealing(input_tasks, 1440, input_node.data[3], input_node)
-                self.return_profit(input_tasks, node.data[3], input_node)
+                #self.return_profit(input_tasks, node.data[3], input_node)
+                self.return_profit(input_node)
 
     def result(self):
         self.return_profit(self.root)
         return self.best_profit*self.factor
 
     def return_sequence(self):
-        if self.subtree_node == self.root:
-            result = []
-            for i in range(len(self.sorted_list)):
-                result.append(self.sorted_list[i][0])
-            self.best_order = result
-            return result
         all_leaves = self.tree.leaves(self.subtree_node.data[0])
         for i in range(len(all_leaves)):
             node = all_leaves[i]
-            if node.data[2] == self.bound:
+            if node.data[2] == self.best_profit:
                 identifier = node.data[0]
                 str_list = identifier.split('-')[2:]
                 for j in range(len(str_list)):
