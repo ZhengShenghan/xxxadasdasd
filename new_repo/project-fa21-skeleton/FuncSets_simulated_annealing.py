@@ -43,6 +43,7 @@ class branch_and_bound:
         # when we update self.bound we memorize that node, because the leave node we want is in its subtree
         self.subtree_node = self.root
         # the last node updated self.bound has priviledge to hold at least one branch
+
     def naive_simulated_annealing(self, tasks, temp):
         profit_margin = EVAL_FUNCTIONS['adv_profit_ratio']
         deadline = EVAL_FUNCTIONS['deadline_profit']
@@ -51,14 +52,15 @@ class branch_and_bound:
         buffer_tasks = copy.deepcopy(tasks)
         sequence = []
         while len(tasks) > 0:
-            top_ten = sorted(buffer_tasks, key=deadline(time), reverse=True)[:10]
-            if top_ten == []:
+            selection = sorted(buffer_tasks, key=deadline(time), reverse=True)[:10]
+
+            if not selection:
                 break
             # Sort by the profit/duration
-            best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
+            best = sorted(selection, key=profit_margin(time), reverse=True)[0]
 
             # Random choice out of possible options
-            random_choice = top_ten[random.randint(0, len(top_ten) - 1)]
+            random_choice = selection[random.randint(0, len(selection) - 1)]
 
             # Determine if the time has gone over the deadline
             overtime = time - best.get_deadline()
@@ -106,42 +108,41 @@ class branch_and_bound:
         T_ini = 0
         T_end = 0
         k = 0.95
-        sort_buffer = []
         while runtime < self.L:
             sequence = []
             time = 0
             profit = 0.0
+            input_tasks = tasks.copy()
             while len(input_tasks) > 0:
-                input_tasks = copy.deepcoy(tasks)
-                if runtime == 0:
-                    sort_buffer = sorted(input_tasks, key=deadline(time), reverse=True)
-                    top_ten = sort_buffer[:10]
-
-
-                # Sort by the profit/duration
-                    best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
-                else:
-                    top_ten = sort_buffer[:10]
-                    add_rand = random.sample(range(1, len(tasks)), 5)
-                    for x in add_rand:
-                        top_ten.append(add_rand)
-                    best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
+                # if runtime == 0:
+                #     sort_buffer = sorted(input_tasks, key=deadline(time), reverse=True)
+                #     selection = sort_buffer[:10]
+                #
+                #     # Sort by the profit/duration
+                #     choice = sorted(selection, key=profit_margin(time), reverse=True)[0]
+                # else:
+                sort_buffer = sorted(input_tasks, key=deadline(time), reverse=True)
+                selection = sort_buffer[:10]
+                add_rand = random.sample(range(0, len(tasks)), max(1, int(len(input_tasks)/20)))
+                for idx in add_rand:
+                    selection.append(self.tasks[idx])
+                choice = sorted(selection, key=profit_margin(time), reverse=True)[0]
 
                 # Random choice out of possible options
-                random_choice = top_ten[random.randint(0, len(top_ten) - 1)]
+                random_choice = selection[random.randint(0, len(selection) - 1)]
 
                 # Determine if the time has gone over the deadline
-                overtime = start_time + time - best.get_deadline()
+                overtime = start_time + time - choice.get_deadline()
                 
                 # temp schedule
                 t = temp / (time + 1)
 
                 # Difference in energy
-                diff = best.get_late_benefit(overtime) - random_choice.get_late_benefit(overtime)
+                diff = choice.get_late_benefit(overtime) - random_choice.get_late_benefit(overtime)
 
                 # Annealing constant
                 anneal = math.exp(-diff / t)
-                choice = best
+
                 if diff >= 0 and random.random() < anneal:
                     choice = random_choice
 
@@ -161,13 +162,13 @@ class branch_and_bound:
                 time += choice.get_duration()
 
                 # Add the task to the sequence
-                #sequence.append(choice.get_task_id())
                 sequence.append(choice.get_task_id())
+
             if runtime == 0:
                 pre_profit = profit
                 T_ini = 1/profit
                 T_end = 1/(profit + 0.15*profit)
-                new_node = self.tree.create_node(identifier = node.data[0] + self.generate_id(sequence), parent = node.data[0],
+                new_node = self.tree.create_node(identifier=node.data[0] + self.generate_id(sequence), parent = node.data[0],
                                       data = [node.data[0] + self.generate_id(sequence), profit, node.data[2] + 1, node.data[3] + time])
                 self.queue.put(new_node)
                 self.num_nodes += 1
@@ -227,14 +228,14 @@ class branch_and_bound:
             sum_duration += 1
         factor = sum_profit/sum_duration
         if factor < 1.6:
-            #in this case profit too small
+            # in this case profit too small
             self.factor = factor/1.6
             for i in range(self.height):
                 self.tasks[i].modify_profit(self.tasks[i].get_max_benefit()*1.6/factor)
         return
 
-    def reurn_profit(self, available_tasks, current_time, node):
-        # determine which input should be feeded into simulated anealing
+    def return_profit(self, available_tasks, current_time, node):
+        # determine which input should be fed into simulated annealing
         # feed in available tasks , set start time,
         if node.data[1] > self.best_profit:
             self.best_profit = node.data[1]
@@ -250,15 +251,17 @@ class branch_and_bound:
             for i in range(len(name_list)):
                 name_list[i] = int(name_list[i])
             input_tasks = self.diff_list(self.tasks, name_list)
+
             if input_node.data[2] == 1:
                 self.simulated_annealing(input_tasks, int(1440*2/3), node.data[3], input_node)
                 self.return_profit(input_tasks, node.data[3], input_node)
+
             if input_node.data[2] == 2:
                 self.simulated_annealing(input_tasks, 1440, node.data[3], input_node)
                 self.return_profit(input_tasks, node.data[3], input_node)
 
     def result(self):
-        self.reurn_profit(self.tasks, 0, self.root)
+        self.return_profit(self.tasks, 0, self.root)
         return self.best_profit*self.factor
 
     def return_sequence(self):
