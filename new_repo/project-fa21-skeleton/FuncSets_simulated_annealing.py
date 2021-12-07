@@ -128,7 +128,7 @@ class branch_and_bound:
 
                 # Determine if the time has gone over the deadline
 
-                overtime = start_time + time - best.get_deadline() + best.get_duration()
+                overtime = start_time + time - choice.get_deadline() + choice.get_duration()
 
                 
                 # temp schedule

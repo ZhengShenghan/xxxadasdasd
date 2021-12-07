@@ -124,7 +124,7 @@ if __name__ == '__main__':
                     output1, profit1 = bench_mark(tasks1, 'adv_profit_ratio')
                     output2, profit2 = 0, 0
                     # simulated_annealing(tasks2, 2000)
-                    # profit2 = FuncSets_simulated_annealing.branch_and_bound(tasks).result()
+                    profit2 = FuncSets_simulated_annealing.branch_and_bound(tasks).result()
                     #                     total += branch_and_bound.result()
                     if profit1 > profit2:
                         net += profit1
