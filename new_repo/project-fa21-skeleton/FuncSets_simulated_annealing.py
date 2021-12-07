@@ -106,25 +106,21 @@ class branch_and_bound:
         T_ini = 0
         T_end = 0
         k = 0.95
-        sort_buffer = []
         while runtime < self.L:
             sequence = []
             time = 0
             profit = 0.0
+            input_tasks = copy.deepcopy(tasks)
             while len(input_tasks) > 0:
-                input_tasks = copy.deepcoy(tasks)
+
                 if runtime == 0:
-                    sort_buffer = sorted(input_tasks, key=deadline(time), reverse=True)
-                    top_ten = sort_buffer[:10]
-
-
-                # Sort by the profit/duration
+                    top_ten = sorted(input_tasks, key=deadline(time), reverse=True)[:10]
                     best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
                 else:
-                    top_ten = sort_buffer[:10]
-                    add_rand = random.sample(range(1, len(tasks)), 5)
+                    top_ten = sorted(input_tasks, key=deadline(time), reverse=True)
+                    add_rand = random.sample(range(1, len(input_tasks)), max(1, int(len(input_tasks)/2)))
                     for x in add_rand:
-                        top_ten.append(add_rand)
+                        top_ten.append(self.tasks[x])
                     best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
 
                 # Random choice out of possible options
@@ -134,7 +130,7 @@ class branch_and_bound:
                 overtime = start_time + time - best.get_deadline()
                 
                 # temp schedule
-                t = temp / (time + 1)
+                t = temp / (start_time + time + 1)
 
                 # Difference in energy
                 diff = best.get_late_benefit(overtime) - random_choice.get_late_benefit(overtime)
