@@ -128,7 +128,7 @@ class branch_and_bound:
 
                 # Determine if the time has gone over the deadline
 
-                overtime = start_time + time - best.get_deadline() + best.get_duration()
+                overtime = start_time + time - choice.get_deadline() + choice.get_duration()
 
                 
                 # temp schedule
@@ -265,7 +265,6 @@ class branch_and_bound:
 
             if input_node.data[2] == 1:
                 self.simulated_annealing(input_tasks, int(1440*2/3), input_node.data[3], input_node)
-
                 #self.return_profit(input_tasks, node.data[3], input_node)
                 self.return_profit(input_node)
             if input_node.data[2] == 2:
@@ -281,7 +280,7 @@ class branch_and_bound:
         all_leaves = self.tree.leaves(self.subtree_node.data[0])
         for i in range(len(all_leaves)):
             node = all_leaves[i]
-            if node.data[2] == self.best_profit:
+            if node.data[1] == self.best_profit:
                 identifier = node.data[0]
                 str_list = identifier.split('-')[2:]
                 for j in range(len(str_list)):
