@@ -181,9 +181,8 @@ class branch_and_bound:
         #return sequence, profit
 
     def generate_id(self, list_id :list):
-        result = '-'
         for i in range(len(list_id)):
-            result += str(list_id[i])
+            result += '-' + str(list_id[i])
         return result
 
     def metroplis_rule(self, E_1, E_2, k, T):
