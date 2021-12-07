@@ -3,6 +3,8 @@ import math
 import os
 import random
 import dynamic
+from threading import Thread
+from multiprocessing.pool import ThreadPool
 import FuncSets
 import FuncSets_BFS
 import Task
@@ -178,6 +180,7 @@ if __name__ == '__main__':
     # task4 = Task.Task(4, 576, 360, 15)
     # tasks = [task0, task1, task2, task3, task4]
     # print(dynamic.dp_solver(tasks))
+    pool = ThreadPool(processes=16)
     for test_type in os.listdir('inputs/'):
         if test_type[0] != '.':
             for input_path in os.listdir('inputs/' + test_type):
@@ -186,16 +189,23 @@ if __name__ == '__main__':
                     input_path = 'inputs/' + test_type + '/' + input_path
                     tasks = read_input_file(input_path)
 
-                    tasks1 = tasks.copy()
-                    tasks2 = tasks.copy()
-                    tasks3 = tasks.copy()
-                    out1 = 0, 0
-                    out2 = 0, 0
-                    out3 = 0, 0
-                    out4 = 0, 0
-                    p, s = dynamic.dp_solver(tasks)
-                    net += p
-                    write_output_file(output_path, s)
+                    async_result = pool.apply_async(dynamic.dp_solver, (tasks,))  # tuple of args for foo
+
+                    # do some other stuff in the main process
+                    return_val = async_result.get()  # get the return value from your function.
+                    net += return_val[0]
+                    write_output_file(output_path, return_val[1])
+
+                    # tasks1 = tasks.copy()
+                    # tasks2 = tasks.copy()
+                    # tasks3 = tasks.copy()
+                    # out1 = 0, 0
+                    # out2 = 0, 0
+                    # out3 = 0, 0
+                    # out4 = 0, 0
+                    # p, s = dynamic.dp_solver(tasks)
+                    # net += p
+                    # write_output_file(output_path, s)
                     # out1 = bench_mark(tasks1, 'adv_profit_ratio')
                     # branch_bound = FuncSets_simulated_annealing.branch_and_bound(tasks)
                     # out2 = branch_bound.return_sequence(), branch_bound.result()
