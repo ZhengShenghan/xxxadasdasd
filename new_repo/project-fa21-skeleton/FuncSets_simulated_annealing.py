@@ -164,20 +164,26 @@ class branch_and_bound:
                 else:
                     T_ini = 1 / profit
                 T_end = 1/(profit + 0.15*profit + 1)
-                new_node = self.tree.create_node(identifier = node.data[0] + self.generate_id(sequence), parent = node.data[0],
+                try:
+                    new_node = self.tree.create_node(identifier = node.data[0] + self.generate_id(sequence), parent = node.data[0],
                                       data = [node.data[0] + self.generate_id(sequence), profit, node.data[2] + 1, node.data[3] + time])
-                self.queue.put(new_node)
-                self.num_nodes += 1
+                    self.queue.put(new_node)
+                    self.num_nodes += 1
+                except:
+                    pass
             else:
                 # add another while loop
                 if profit != 0:
                     if T_end > 1/profit:
                         break
-                if self.metroplis_rule(1/profit, 1/pre_profit, k, T_ini) == 1:
-                    new_node = self.tree.create_node(identifier=node.data[0] + self.generate_id(sequence), parent=node.data[0],
+                if self.metroplis_rule(1/(profit + 0.01), 1/(pre_profit + 0.01), k, T_ini) == 1:
+                    try:
+                        new_node = self.tree.create_node(identifier=node.data[0] + self.generate_id(sequence), parent=node.data[0],
                                           data=[node.data[0] + self.generate_id(sequence), profit, node.data[2] + 1, node.data[3] + time])
-                    self.queue.put(new_node)
-                    self.num_nodes += 1
+                        self.queue.put(new_node)
+                        self.num_nodes += 1
+                    except:
+                        pass
             runtime += 1
         #assert time <= time_constraint, f'Tasks time {time} exceed the limit of {time_constraint}'
         #return sequence, profit

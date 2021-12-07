@@ -22,3 +22,10 @@ We define the energy to be the 1/(sum of profit) here
 ![A flowchart of the simulated-annealing algorithm. | Download Scientific  Diagram](https://www.researchgate.net/publication/329917885/figure/fig1/AS:708072221704199@1545828981418/A-flowchart-of-the-simulated-annealing-algorithm.jpg)
 
 ![image-20211206133338479](C:\Users\Eric Zheng\AppData\Roaming\Typora\typora-user-images\image-20211206133338479.png)
+
+
+
+Somewhere can modify:
+
+1.  4 params
+2. temp
