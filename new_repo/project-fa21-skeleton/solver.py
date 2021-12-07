@@ -165,6 +165,15 @@ def determine_profit(sequence):
         profit += task.get_late_benefit(overtime)
     return profit
 
+# def check_outputs():
+#     for test_type in os.listdir('outputs/'):
+#         if test_type[0] != '.':
+#             for out_path in os.listdir('outputs/' + test_type):
+#                 if out_path[0] != '.':
+#                     output_path = 'outputs/' + test_type + '/' + out_path[:-3] + '.out'
+#                     with open(out_path, encoding="utf-8-sig") as out_file:
+#                         while out_file
+#
 
 # Here's an example of how to run your solver.
 if __name__ == '__main__':
@@ -189,12 +198,13 @@ if __name__ == '__main__':
                     input_path = 'inputs/' + test_type + '/' + input_path
                     tasks = read_input_file(input_path)
 
-                    async_result = pool.apply_async(dynamic.dp_solver, (tasks,))  # tuple of args for foo
+                    # async_result = pool.apply_async(dynamic.dp_solver, (tasks,))  # tuple of args for foo
+                    #
+                    # # do some other stuff in the main process
+                    # return_val = async_result.get()  # get the return value from your function.
+                    # net += return_val[0]
+                    # write_output_file(output_path, return_val[1])
 
-                    # do some other stuff in the main process
-                    return_val = async_result.get()  # get the return value from your function.
-                    net += return_val[0]
-                    write_output_file(output_path, return_val[1])
 
                     # tasks1 = tasks.copy()
                     # tasks2 = tasks.copy()
@@ -203,9 +213,9 @@ if __name__ == '__main__':
                     # out2 = 0, 0
                     # out3 = 0, 0
                     # out4 = 0, 0
-                    # p, s = dynamic.dp_solver(tasks)
-                    # net += p
-                    # write_output_file(output_path, s)
+                    p, s = dynamic.dp_solver(tasks)
+                    net += p
+                    write_output_file(output_path, s)
                     # out1 = bench_mark(tasks1, 'adv_profit_ratio')
                     # branch_bound = FuncSets_simulated_annealing.branch_and_bound(tasks)
                     # out2 = branch_bound.return_sequence(), branch_bound.result()
