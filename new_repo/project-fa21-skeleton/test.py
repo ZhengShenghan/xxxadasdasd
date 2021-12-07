@@ -17,6 +17,7 @@ if __name__ == '__main__':
     task2 = Task.Task(1, 1, 5, 3.0)
     task3 = Task.Task(2, 1, 4, 3.0)
     task4 = Task.Task(3, 1, 2, 3.0)
+    task5 = Task.Task(4, 1, 2, 3.0)
     tree = FuncSets_simulated_annealing.branch_and_bound([task1,task2,task3,task4])
     print(tree.result())
     print(tree.return_sequence())

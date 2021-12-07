@@ -8,7 +8,8 @@ import FuncSets_simulated_annealing
 sys.setrecursionlimit(20000)
 
 if __name__ == '__main__':
-
+    sum = 0
+    num = 0
     for test_type in os.listdir('inputs/'):
             if test_type[0] != '.':
                 for input_path in os.listdir('inputs/' + test_type):
@@ -17,5 +18,9 @@ if __name__ == '__main__':
                         input_path = 'inputs/' + test_type + '/' + input_path
                         tasks = read_input_file(input_path)
                         branch_and_bound = FuncSets_simulated_annealing.branch_and_bound(tasks)
+                        sum += branch_and_bound.result()
                         print(branch_and_bound.result())
+                        num += 1
                         print('\n')
+    print("---")
+    print(sum/num)

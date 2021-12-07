@@ -118,7 +118,7 @@ class branch_and_bound:
                 add_rand = random.sample(range(0, len(input_tasks)), max(1, int(len(input_tasks)/20)))
                 for x in add_rand:
                     if self.tasks[x] not in top_ten:
-                        top_ten.append(self.tasks[x])
+                        top_ten.append(input_tasks[x])
                 best = sorted(top_ten, key=profit_margin(time), reverse=True)[0]
 
                 # Random choice out of possible options
@@ -246,10 +246,12 @@ class branch_and_bound:
             input_tasks = self.diff_list(self.tasks, name_list)
             if input_node.data[2] == 1:
                 self.simulated_annealing(input_tasks, int(1440*2/3), input_node.data[3], input_node)
-                self.return_profit(input_tasks, node.data[3], input_node)
+                #self.return_profit(input_tasks, node.data[3], input_node)
+                self.return_profit(input_node)
             if input_node.data[2] == 2:
                 self.simulated_annealing(input_tasks, 1440, input_node.data[3], input_node)
-                self.return_profit(input_tasks, node.data[3], input_node)
+                #self.return_profit(input_tasks, node.data[3], input_node)
+                self.return_profit(input_node)
 
     def result(self):
         self.return_profit(self.root)
