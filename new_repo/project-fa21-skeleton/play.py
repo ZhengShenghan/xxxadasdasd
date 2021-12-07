@@ -26,9 +26,11 @@ if __name__ == '__main__':
     tree = treelib.Tree()
     tree.create_node(identifier='0',data=[1])
     tree.create_node(identifier='1', parent='0',data = [1])
-    tree.create_node(identifier='1', parent='0',data = [2])
+    tree.create_node(identifier='3', parent='0',data = [2])
     tree.show()
-
+    c = random.sample(range(0,5),5)
+    print(1)
+    b = 2
     '''
     tree.create_node(identifier = '0',data = task1)
 

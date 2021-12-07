@@ -114,18 +114,11 @@ class branch_and_bound:
             profit = 0.0
             input_tasks = tasks.copy()
             while len(input_tasks) > 0:
-                # if runtime == 0:
-                #     sort_buffer = sorted(input_tasks, key=deadline(time), reverse=True)
-                #     selection = sort_buffer[:10]
-                #
-                #     # Sort by the profit/duration
-                #     choice = sorted(selection, key=profit_margin(time), reverse=True)[0]
-                # else:
                 sort_buffer = sorted(input_tasks, key=deadline(time), reverse=True)
                 selection = sort_buffer[:10]
-                add_rand = random.sample(range(0, len(tasks)), max(1, int(len(input_tasks)/20)))
+                add_rand = random.sample(range(0, len(input_tasks)), max(1, int(len(input_tasks)/20)))
                 for idx in add_rand:
-                    selection.append(self.tasks[idx])
+                    selection.append(input_tasks[idx])
                 choice = sorted(selection, key=profit_margin(time), reverse=True)[0]
 
                 # Random choice out of possible options
@@ -135,7 +128,7 @@ class branch_and_bound:
                 overtime = start_time + time - choice.get_deadline()
                 
                 # temp schedule
-                t = temp / (time + 1)
+                t = temp / (start_time + time + 1)
 
                 # Difference in energy
                 diff = choice.get_late_benefit(overtime) - random_choice.get_late_benefit(overtime)
@@ -186,9 +179,9 @@ class branch_and_bound:
         #return sequence, profit
 
     def generate_id(self, list_id :list):
-        result = '-'
+        result = ''
         for i in range(len(list_id)):
-            result += str(list_id[i])
+            result += '-' + str(list_id[i])
         return result
 
     def metroplis_rule(self, E_1, E_2, k, T):
@@ -234,8 +227,8 @@ class branch_and_bound:
                 self.tasks[i].modify_profit(self.tasks[i].get_max_benefit()*1.6/factor)
         return
 
-    def return_profit(self, available_tasks, current_time, node):
-        # determine which input should be fed into simulated annealing
+    def return_profit(self, node):
+        # determine which input should be feeded into simulated anealing
         # feed in available tasks , set start time,
         if node.data[1] > self.best_profit:
             self.best_profit = node.data[1]
@@ -253,15 +246,15 @@ class branch_and_bound:
             input_tasks = self.diff_list(self.tasks, name_list)
 
             if input_node.data[2] == 1:
-                self.simulated_annealing(input_tasks, int(1440*2/3), node.data[3], input_node)
+                self.simulated_annealing(input_tasks, int(1440*2/3), input_node.data[3], input_node)
                 self.return_profit(input_tasks, node.data[3], input_node)
 
             if input_node.data[2] == 2:
-                self.simulated_annealing(input_tasks, 1440, node.data[3], input_node)
+                self.simulated_annealing(input_tasks, 1440, input_node.data[3], input_node)
                 self.return_profit(input_tasks, node.data[3], input_node)
 
     def result(self):
-        self.return_profit(self.tasks, 0, self.root)
+        self.return_profit(self.root)
         return self.best_profit*self.factor
 
     def return_sequence(self):
