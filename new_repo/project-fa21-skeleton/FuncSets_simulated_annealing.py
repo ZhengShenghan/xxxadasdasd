@@ -34,7 +34,7 @@ class branch_and_bound:
         self.root = self.tree.create_node(identifier='-1', data=['-1', 0, 0, 0])
         self.T = self.naive_simulated_annealing(tasks, 2000)
         self.T = 1/self.T
-        self.L = min(10, int(self.height/10))
+        self.L = min(5, int(self.height/10) + 3)
         self.queue = queue.Queue()
         self.tasks = tasks
         self.marshal()
@@ -107,6 +107,7 @@ class branch_and_bound:
         T_end = 0
         k = 0.95
         while runtime < self.L:
+            slips = 5
             sequence = []
             time = 0
             profit = 0.0
@@ -124,7 +125,7 @@ class branch_and_bound:
                 random_choice = top_ten[random.randint(0, len(top_ten) - 1)]
 
                 # Determine if the time has gone over the deadline
-                overtime = start_time + time - best.get_deadline()
+                overtime = start_time + time - best.get_deadline() + best.get_duration()
                 
                 # temp schedule
                 t = temp / (start_time + time + 1)
@@ -137,24 +138,25 @@ class branch_and_bound:
                 choice = best
                 if diff >= 0 and random.random() < anneal:
                     choice = random_choice
-
+                input_tasks.remove(choice)
+                overtime = start_time + choice.get_duration() - choice.get_deadline()
                 if start_time + time + choice.get_duration() > time_constraint:
-                    time -= choice.get_duration()
-                    break
+                    if start_time + time + choice.get_duration() > 1440:
+                        break
+                    if not slips:
+                        break
+                    slips -= 1
                 # Add expected profit from igloo
-
                 profit += choice.get_late_benefit(overtime)
 
-                #self.best_each_level.append(profit)
+                    #self.best_each_level.append(profit)
 
-                # Remove task from tasks
-                input_tasks.remove(choice)
-
-                # Add the duration of the task to the time
+                    # Remove task from tasks
+                    # Add the duration of the task to the time
                 time += choice.get_duration()
 
-                # Add the task to the sequence
-                #sequence.append(choice.get_task_id())
+                    # Add the task to the sequence
+                    #sequence.append(choice.get_task_id())
                 sequence.append(choice.get_task_id())
             if runtime == 0:
                 pre_profit = profit
