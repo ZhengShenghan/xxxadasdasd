@@ -1,10 +1,10 @@
-from solver import EVAL_FUNCTIONS
+import solver
 import random
 import math
 
 def basic_simulated_annealing(tasks, temp):
-    profit_margin = EVAL_FUNCTIONS['adv_profit_ratio']
-    deadline = EVAL_FUNCTIONS['deadline_profit']
+    profit_margin = solver.EVAL_FUNCTIONS['adv_profit_ratio']
+    deadline = solver.EVAL_FUNCTIONS['deadline_profit']
     time = 0
     profit = 0.0
     buffer_tasks = tasks.copy()
@@ -62,8 +62,8 @@ def basic_simulated_annealing(tasks, temp):
 
 
 def basic_greedy(tasks):
-    profit_margin = EVAL_FUNCTIONS['adv_profit_ratio']
-    deadline = EVAL_FUNCTIONS['deadline_profit']
+    profit_margin = solver.EVAL_FUNCTIONS['adv_profit_ratio']
+    deadline = solver.EVAL_FUNCTIONS['deadline_profit']
     sequence = []
     slip = 10
     time = 0

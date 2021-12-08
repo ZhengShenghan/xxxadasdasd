@@ -1,9 +1,9 @@
-from solver import EVAL_FUNCTIONS
+import solver
 
 
 def dp_solver(tasks):
-    profit_margin = EVAL_FUNCTIONS['adv_profit_ratio']
-    deadline = EVAL_FUNCTIONS['deadline']
+    profit_margin = solver.EVAL_FUNCTIONS['adv_profit_ratio']
+    deadline = solver.EVAL_FUNCTIONS['deadline']
 
     sorted_tasks = sorted(tasks, key=deadline, reverse=False)
     mem = {}

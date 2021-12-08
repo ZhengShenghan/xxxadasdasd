@@ -1,8 +1,8 @@
 from parse import read_input_file, write_output_file
 import os
 import sys
-from dynamic import dp_solver
-from greedy import basic_greedy, basic_simulated_annealing
+import dynamic
+import greedy
 import FuncSets_simulated_annealing
 sys.setrecursionlimit(20000)
 
@@ -24,13 +24,13 @@ def run_mult_alg(tasks):
     branch_bound = FuncSets_simulated_annealing.branch_and_bound(tasks2)
 
     # Simply greedy
-    out1 = basic_greedy(tasks1)
+    out1 = greedy.basic_greedy(tasks1)
 
     # Branch and bound
     out2 = branch_bound.return_sequence(), branch_bound.result()
 
     # Simulated Annealing
-    out3 = basic_simulated_annealing(tasks3, 2000)
+    out3 = greedy.basic_simulated_annealing(tasks3, 2000)
 
     sequence, profit = max([out1, out2, out3], key=lambda x: x[1])
     write_output_file(output_path, sequence)
@@ -47,9 +47,7 @@ if __name__ == '__main__':
                     input_path = 'inputs/' + test_type + '/' + input_path
                     tasks = read_input_file(input_path)
 
-                    _, s = dp_solver(tasks)
+                    _, s = dynamic.dp_solver(tasks)
                     write_output_file(output_path, s)
-
                     # Uncomment to run the three algorithm stack
                     # run_mult_alg(tasks)
-
